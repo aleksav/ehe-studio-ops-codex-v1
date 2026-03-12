@@ -2,4 +2,8 @@ node_modules
 dist
 coverage
 .expo
-
+AGENTS.md
+agents/*.md
+claude-code-engineering-guide.md
+ehestudio-ops-functional-spec.md
+readme.md

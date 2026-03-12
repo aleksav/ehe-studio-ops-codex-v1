@@ -14,4 +14,3 @@ export type TaskStatus = (typeof taskStatuses)[number];
 export type BudgetType = (typeof budgetTypes)[number];
 export type AuditAction = (typeof auditActions)[number];
 export type TaskType = (typeof taskTypes)[number];
-

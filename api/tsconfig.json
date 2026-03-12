@@ -4,8 +4,7 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "noEmit": false,
-    "outDir": "dist",
-    "rootDir": "."
+    "outDir": "dist"
   },
   "include": ["src/**/*.ts", "prisma/**/*.ts", "tests/**/*.ts"]
 }

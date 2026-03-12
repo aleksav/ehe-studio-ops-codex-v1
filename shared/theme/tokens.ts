@@ -22,4 +22,3 @@ export const themeTokens = {
   shape: shapeTokens,
   typography: typographyTokens,
 } as const;
-

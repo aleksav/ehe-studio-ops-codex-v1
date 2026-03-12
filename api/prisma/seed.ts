@@ -1,4 +1,5 @@
-import { PrismaClient, Prisma } from '@prisma/client';
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -52,7 +53,7 @@ async function main() {
   const projects = await Promise.all([
     prisma.project.create({
       data: {
-        budgetAmount: new Prisma.Decimal('24000.00'),
+        budgetAmount: '24000.00',
         budgetType: 'CAPPED',
         currencyCode: 'GBP',
         description: 'Launch operations tooling for the studio team.',
@@ -64,7 +65,7 @@ async function main() {
     }),
     prisma.project.create({
       data: {
-        budgetAmount: new Prisma.Decimal('18000.00'),
+        budgetAmount: '18000.00',
         budgetType: 'TRACKED_ONLY',
         currencyCode: 'GBP',
         description: 'Internal process redesign and reporting improvements.',
@@ -215,7 +216,7 @@ async function main() {
   await prisma.taskRate.createMany({
     data: rateHistory.map(([taskType, dayRate, effectiveFrom, effectiveTo]) => ({
       currencyCode: 'GBP',
-      dayRate: new Prisma.Decimal(dayRate),
+      dayRate,
       effectiveFrom: asDate(effectiveFrom),
       effectiveTo: effectiveTo ? asDate(effectiveTo) : null,
       taskType,
@@ -226,7 +227,7 @@ async function main() {
     data: [
       {
         date: asDate('2026-03-10'),
-        hoursWorked: new Prisma.Decimal('4.00'),
+        hoursWorked: '4.00',
         notes: 'Reviewed task rate continuity rules.',
         projectId: opsProject.id,
         taskType: 'ARCHITECTURE_ENGINEERING_DIRECTION',
@@ -234,7 +235,7 @@ async function main() {
       },
       {
         date: asDate('2026-03-10'),
-        hoursWorked: new Prisma.Decimal('3.50'),
+        hoursWorked: '3.50',
         notes: 'Mapped quick-entry interactions.',
         projectId: opsProject.id,
         taskType: 'DESIGN_DELIVERY_RESEARCH',
@@ -242,7 +243,7 @@ async function main() {
       },
       {
         date: asDate('2026-03-11'),
-        hoursWorked: new Prisma.Decimal('5.00'),
+        hoursWorked: '5.00',
         notes: 'Stitched people-grouped standup concepts.',
         projectId: systemsProject.id,
         taskType: 'DEVELOPMENT_TESTING',
@@ -250,7 +251,7 @@ async function main() {
       },
       {
         date: asDate('2026-03-11'),
-        hoursWorked: new Prisma.Decimal('2.50'),
+        hoursWorked: '2.50',
         notes: 'Prepared audit log filter notes.',
         projectId: systemsProject.id,
         taskType: 'BUSINESS_SUPPORT',
@@ -269,4 +270,3 @@ main()
     await prisma.$disconnect();
     process.exitCode = 1;
   });
-

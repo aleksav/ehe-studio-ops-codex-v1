@@ -5,4 +5,3 @@ export const mobileTheme = {
   shape: themeTokens.shape,
   typography: themeTokens.typography,
 } as const;
-

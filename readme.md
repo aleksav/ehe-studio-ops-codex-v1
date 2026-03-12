@@ -84,3 +84,30 @@ project-root/
 ├── AGENTS.md
 └── README.md
 ```
+
+## Parallel Agent Worktrees
+
+Use isolated worktrees so each agent can work in parallel without touching the same branch checkout.
+
+```bash
+# Create/update worktrees from main
+./scripts/setup-agent-worktrees.sh main
+
+# Show active worktrees
+git worktree list
+```
+
+Worktree paths:
+- `.worktrees/developer-a`
+- `.worktrees/developer-b`
+- `.worktrees/qa-engineer`
+- `.worktrees/security-expert`
+- `.worktrees/performance-expert`
+
+Author identities (required):
+- `team-lead-agent <aleksa@tsf.tech>`
+- `developer-a-agent <aleksa@tsf.tech>`
+- `developer-b-agent <aleksa@tsf.tech>`
+- `qa-engineer-agent <aleksa@tsf.tech>`
+- `security-expert-agent <aleksa@tsf.tech>`
+- `performance-expert-agent <aleksa@tsf.tech>`

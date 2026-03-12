@@ -2,8 +2,6 @@ name: pr-validation
 
 on:
   pull_request:
-    branches:
-      - main
 
 concurrency:
   group: pr-validation-${{ github.event.pull_request.number }}

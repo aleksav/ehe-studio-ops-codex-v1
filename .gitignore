@@ -8,6 +8,6 @@ coverage
 .turbo
 .expo
 .vercel
+.worktrees
 api/prisma/dev.db
 api/prisma/dev.db-journal
-

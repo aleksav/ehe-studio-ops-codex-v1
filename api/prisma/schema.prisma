@@ -1,0 +1,204 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProjectStatus {
+  PLANNED
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+enum BudgetType {
+  NONE
+  CAPPED
+  TRACKED_ONLY
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
+enum TaskType {
+  ARCHITECTURE_ENGINEERING_DIRECTION
+  DESIGN_DELIVERY_RESEARCH
+  DEVELOPMENT_TESTING
+  BUSINESS_SUPPORT
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+model TeamMember {
+  id                 String           @id @default(uuid()) @db.Uuid
+  fullName           String           @map("full_name")
+  email              String           @unique
+  passwordHash       String           @map("password_hash")
+  roleTitle          String?          @map("role_title")
+  preferredTaskType  TaskType?        @map("preferred_task_type")
+  isActive           Boolean          @default(true) @map("is_active")
+  createdAt          DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+  assignedTasks      TaskAssignment[]
+  auditLogs          AuditLog[]
+  sessions           AuthSession[]
+  timeEntries        TimeEntry[]
+
+  @@index([isActive], map: "team_members_is_active_idx")
+  @@map("team_members")
+}
+
+model AuthSession {
+  id                String     @id @default(uuid()) @db.Uuid
+  teamMemberId      String     @map("team_member_id") @db.Uuid
+  refreshTokenHash  String     @map("refresh_token_hash")
+  userAgent         String?    @map("user_agent")
+  ipAddress         String?    @map("ip_address")
+  expiresAt         DateTime   @map("expires_at") @db.Timestamptz(6)
+  revokedAt         DateTime?  @map("revoked_at") @db.Timestamptz(6)
+  createdAt         DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+  teamMember        TeamMember @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
+
+  @@index([teamMemberId], map: "auth_sessions_team_member_id_idx")
+  @@index([expiresAt], map: "auth_sessions_expires_at_idx")
+  @@map("auth_sessions")
+}
+
+model Project {
+  id            String      @id @default(uuid()) @db.Uuid
+  name          String
+  description   String?
+  status        ProjectStatus
+  startDate     DateTime?   @map("start_date") @db.Date
+  endDate       DateTime?   @map("end_date") @db.Date
+  budgetType    BudgetType  @default(NONE) @map("budget_type")
+  budgetAmount  Decimal?    @map("budget_amount") @db.Decimal(12, 2)
+  currencyCode  String      @default("GBP") @map("currency_code") @db.Char(3)
+  createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
+  milestones    Milestone[]
+  tasks         Task[]
+  timeEntries   TimeEntry[]
+
+  @@index([status], map: "projects_status_idx")
+  @@map("projects")
+}
+
+model Milestone {
+  id         String    @id @default(uuid()) @db.Uuid
+  projectId  String    @map("project_id") @db.Uuid
+  name       String
+  dueDate    DateTime? @map("due_date") @db.Date
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  project    Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks      Task[]
+
+  @@index([projectId], map: "milestones_project_id_idx")
+  @@index([projectId, dueDate], map: "milestones_project_due_date_idx")
+  @@map("milestones")
+}
+
+model Task {
+  id           String      @id @default(uuid()) @db.Uuid
+  projectId    String      @map("project_id") @db.Uuid
+  milestoneId  String?     @map("milestone_id") @db.Uuid
+  description  String
+  status       TaskStatus  @default(TODO)
+  startedAt    DateTime?   @map("started_at") @db.Timestamptz(6)
+  completedAt  DateTime?   @map("completed_at") @db.Timestamptz(6)
+  createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
+  project      Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  milestone    Milestone?  @relation(fields: [milestoneId], references: [id], onDelete: SetNull)
+  assignments  TaskAssignment[]
+
+  @@index([projectId], map: "tasks_project_id_idx")
+  @@index([milestoneId], map: "tasks_milestone_id_idx")
+  @@index([status], map: "tasks_status_idx")
+  @@index([projectId, status], map: "tasks_project_status_idx")
+  @@index([completedAt], map: "tasks_completed_at_idx")
+  @@map("tasks")
+}
+
+model TaskAssignment {
+  id           String     @id @default(uuid()) @db.Uuid
+  taskId       String     @map("task_id") @db.Uuid
+  teamMemberId String     @map("team_member_id") @db.Uuid
+  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  task         Task       @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  teamMember   TeamMember @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, teamMemberId], map: "task_assignments_task_id_team_member_id_key")
+  @@index([taskId], map: "task_assignments_task_id_idx")
+  @@index([teamMemberId], map: "task_assignments_team_member_id_idx")
+  @@map("task_assignments")
+}
+
+model TimeEntry {
+  id           String     @id @default(uuid()) @db.Uuid
+  projectId    String     @map("project_id") @db.Uuid
+  teamMemberId String     @map("team_member_id") @db.Uuid
+  date         DateTime   @db.Date
+  hoursWorked  Decimal    @map("hours_worked") @db.Decimal(8, 2)
+  taskType     TaskType   @map("task_type")
+  notes        String?
+  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+  project      Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  teamMember   TeamMember @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
+
+  @@index([projectId], map: "time_entries_project_id_idx")
+  @@index([teamMemberId], map: "time_entries_team_member_id_idx")
+  @@index([date], map: "time_entries_date_idx")
+  @@index([teamMemberId, date], map: "time_entries_team_member_id_date_idx")
+  @@index([projectId, date], map: "time_entries_project_id_date_idx")
+  @@map("time_entries")
+}
+
+model TaskRate {
+  id            String   @id @default(uuid()) @db.Uuid
+  taskType      TaskType @map("task_type")
+  dayRate       Decimal  @map("day_rate") @db.Decimal(12, 2)
+  currencyCode  String   @default("GBP") @map("currency_code") @db.Char(3)
+  effectiveFrom DateTime @map("effective_from") @db.Date
+  effectiveTo   DateTime? @map("effective_to") @db.Date
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([taskType], map: "task_rates_task_type_idx")
+  @@index([taskType, effectiveFrom], map: "task_rates_task_type_effective_from_idx")
+  @@index([taskType, effectiveTo], map: "task_rates_task_type_effective_to_idx")
+  @@unique([taskType, effectiveFrom], map: "task_rates_task_type_effective_from_key")
+  @@map("task_rates")
+}
+
+model AuditLog {
+  id            String      @id @default(uuid()) @db.Uuid
+  entityType    String      @map("entity_type")
+  entityId      String      @map("entity_id") @db.Uuid
+  action        AuditAction
+  actorId       String?     @map("actor_id") @db.Uuid
+  changedFields Json        @map("changed_fields")
+  createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  actor         TeamMember? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([entityType], map: "audit_logs_entity_type_idx")
+  @@index([entityId], map: "audit_logs_entity_id_idx")
+  @@index([action], map: "audit_logs_action_idx")
+  @@index([actorId], map: "audit_logs_actor_id_idx")
+  @@index([createdAt], map: "audit_logs_created_at_idx")
+  @@map("audit_logs")
+}
+

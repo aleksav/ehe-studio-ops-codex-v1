@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
+import { ZodError } from 'zod';
 
 import { AppError } from '../lib/app-error.js';
 import type { ApiError } from '../types/http.js';
@@ -12,6 +13,16 @@ export function errorHandler(error: unknown, _req: Request, res: Response<ApiErr
         code: error.code,
         details: error.details,
         message: error.message,
+      },
+    });
+  }
+
+  if (error instanceof ZodError) {
+    return res.status(422).json({
+      error: {
+        code: 'VALIDATION_ERROR',
+        details: error.flatten(),
+        message: 'Request validation failed.',
       },
     });
   }

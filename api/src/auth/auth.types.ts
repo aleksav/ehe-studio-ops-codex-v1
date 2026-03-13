@@ -16,3 +16,12 @@ export type AuthTokenPayload = {
   sub: string;
 };
 
+export type AuthSuccessPayload = {
+  accessToken: string;
+  refreshToken: string;
+  user: {
+    email: string;
+    fullName: string;
+    id: string;
+  };
+};

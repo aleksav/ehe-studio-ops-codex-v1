@@ -10,8 +10,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "lint": "eslint .",
     "start": "node dist/src/index.js",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "test": "tsx --test tests/**/*.test.ts",
+    "test:watch": "tsx --test --watch tests/**/*.test.ts",
     "typecheck": "tsc -p tsconfig.json"
   },
   "prisma": {
@@ -31,7 +31,6 @@
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.9",
     "prisma": "^6.5.0",
-    "tsx": "^4.19.3",
-    "vitest": "^3.0.9"
+    "tsx": "^4.19.3"
   }
 }

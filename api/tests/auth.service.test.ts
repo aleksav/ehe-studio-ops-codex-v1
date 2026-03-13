@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import assert from 'node:assert/strict';
+import test from 'node:test';
 
 import {
   loginUser,
@@ -7,37 +8,35 @@ import {
   logoutSession,
 } from '../src/auth/auth.service.js';
 
-describe('auth service', () => {
-  it('registers and logs in a user', async () => {
-    const registered = await registerUser({
-      email: 'agent@example.com',
-      fullName: 'Agent Dev',
-      password: 'strongpass123',
-    });
-
-    expect(registered.user.email).toBe('agent@example.com');
-    expect(typeof registered.refreshToken).toBe('string');
-    expect(typeof registered.accessToken).toBe('string');
-
-    const loggedIn = await loginUser({
-      email: 'agent@example.com',
-      password: 'strongpass123',
-    });
-    expect(loggedIn.user.id).toBe(registered.user.id);
+void test('auth service registers and logs in a user', async () => {
+  const registered = await registerUser({
+    email: 'agent@example.com',
+    fullName: 'Agent Dev',
+    password: 'strongpass123',
   });
 
-  it('rotates refresh sessions and supports logout', async () => {
-    const registered = await registerUser({
-      email: 'rotate@example.com',
-      fullName: 'Rotate User',
-      password: 'strongpass123',
-    });
-    const refreshed = refreshSession(registered.refreshToken);
+  assert.equal(registered.user.email, 'agent@example.com');
+  assert.equal(typeof registered.refreshToken, 'string');
+  assert.equal(typeof registered.accessToken, 'string');
 
-    expect(refreshed.refreshToken).not.toBe(registered.refreshToken);
-
-    logoutSession(refreshed.refreshToken);
-    expect(() => refreshSession(refreshed.refreshToken)).toThrowError();
+  const loggedIn = await loginUser({
+    email: 'agent@example.com',
+    password: 'strongpass123',
   });
+
+  assert.equal(loggedIn.user.id, registered.user.id);
 });
 
+void test('auth service rotates refresh sessions and supports logout', async () => {
+  const registered = await registerUser({
+    email: 'rotate@example.com',
+    fullName: 'Rotate User',
+    password: 'strongpass123',
+  });
+  const refreshed = refreshSession(registered.refreshToken);
+
+  assert.notEqual(refreshed.refreshToken, registered.refreshToken);
+
+  logoutSession(refreshed.refreshToken);
+  assert.throws(() => refreshSession(refreshed.refreshToken));
+});

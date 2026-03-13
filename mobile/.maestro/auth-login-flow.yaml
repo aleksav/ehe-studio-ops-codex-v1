@@ -1,0 +1,20 @@
+appId: host.exp.Exponent
+---
+- launchApp
+- tapOn:
+    id: "email-input"
+- inputText: "mobile+demo@tsf.tech"
+- tapOn:
+    id: "full-name-input"
+- inputText: "Mobile Demo"
+- tapOn:
+    id: "password-input"
+- inputText: "strongpass123"
+- tapOn:
+    id: "submit-auth-button"
+- assertVisible:
+    id: "dashboard-name"
+- tapOn:
+    id: "logout-button"
+- assertVisible:
+    id: "submit-auth-button"

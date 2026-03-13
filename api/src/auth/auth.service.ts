@@ -40,11 +40,7 @@ function createRefreshToken(userId: string) {
 function buildAuthPayload(user: AuthUser) {
   return {
     accessToken: signAccessToken(user),
-    user: {
-      email: user.email,
-      fullName: user.fullName,
-      id: user.id,
-    },
+    user: { email: user.email, fullName: user.fullName, id: user.id },
   };
 }
 
@@ -117,3 +113,6 @@ export function logoutSession(refreshToken: string | undefined) {
   sessions.delete(refreshToken);
 }
 
+export function getUserById(userId: string) {
+  return usersById.get(userId);
+}

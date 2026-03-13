@@ -2,8 +2,6 @@ name: pr-validation
 
 on:
   pull_request:
-    branches:
-      - main
 
 concurrency:
   group: pr-validation-${{ github.event.pull_request.number }}
@@ -25,7 +23,9 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci
+          npm install --include=optional
 
       - name: Lint
         run: npm run lint

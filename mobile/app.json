@@ -1,0 +1,10 @@
+{
+  "expo": {
+    "name": "EHEStudio Ops",
+    "slug": "ehe-studio-ops",
+    "scheme": "ehestudioops",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "assetBundlePatterns": ["**/*"]
+  }
+}

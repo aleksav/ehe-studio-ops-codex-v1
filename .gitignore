@@ -5,6 +5,8 @@ dist
 .env.*
 !.env.example
 coverage
+playwright-report
+web/test-results
 .turbo
 .expo
 .vercel
